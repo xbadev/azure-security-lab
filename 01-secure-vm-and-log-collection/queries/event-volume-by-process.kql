@@ -1,0 +1,13 @@
+// Event volume by process (triage baseline)
+//
+// Aggregates auth and authpriv events by process and severity. Useful as a
+// first-look triage view: establishes a normal baseline and makes a sudden
+// spike in su, sudo, or sshd stand out.
+//
+// Doubles as a sanity check on the collection scope. Only processes tied to
+// the auth and authpriv facilities should appear here, since those are the
+// only two facilities the Data Collection Rule was set to collect.
+
+Syslog
+| summarize Events = count() by ProcessName, SeverityLevel
+| order by Events desc

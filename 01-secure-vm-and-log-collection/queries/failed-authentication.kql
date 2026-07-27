@@ -1,0 +1,14 @@
+// Failed authentication attempts
+//
+// Catches failed su and login attempts. A single failed "su - root" produces
+// two distinct log lines for the same event:
+//   1. "FAILED SU (to root) ..."                    from the su process
+//   2. "pam_unix(su-l:auth): authentication failure" from the PAM stack
+//
+// Both are kept here so nothing is missed. If this were wired to an alert
+// rule, dedupe on a time window per user to avoid firing twice per attempt.
+
+Syslog
+| where SyslogMessage has_any ("authentication failure", "FAILED", "Failed password")
+| project TimeGenerated, Computer, ProcessName, SyslogMessage
+| order by TimeGenerated desc

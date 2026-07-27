@@ -1,0 +1,13 @@
+// User account creation (persistence indicator)
+//
+// New local accounts are a common persistence technique. useradd writes a
+// "new user:" line describing the account (name, UID, GID, home, shell).
+//
+// When the account is created through sudo, this also correlates with the
+// matching sudo COMMAND line from privilege-escalation.kql at the same
+// timestamp, showing who created the account and how.
+
+Syslog
+| where SyslogMessage has_any ("useradd", "new user")
+| project TimeGenerated, Computer, ProcessName, SyslogMessage
+| order by TimeGenerated desc

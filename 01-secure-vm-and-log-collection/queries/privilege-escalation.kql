@@ -1,0 +1,16 @@
+// Privilege escalation via sudo
+//
+// Surfaces every command run through sudo. On Azure Ubuntu images the
+// azureuser account has passwordless sudo, so each escalation lands in
+// the authpriv facility as a "COMMAND=" line.
+//
+// Note: sudo events are identified by ProcessName, not by the text of the
+// message. Filtering SyslogMessage for "sudo" returns nothing, because the
+// word "sudo" does not appear in the message body. Filter on ProcessName
+// and search the body for the command that was run.
+
+Syslog
+| where ProcessName == "sudo"
+| where SyslogMessage has "COMMAND"
+| project TimeGenerated, Computer, ProcessName, SyslogMessage
+| order by TimeGenerated desc
